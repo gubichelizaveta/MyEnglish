@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+	<title>Мой сайт</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+	<!-- Подключение библиотеки jQuery UI -->
+	<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+	<style>
+		/* Стили для меню */
+		#sidebar {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 220px;
+			height: 100%;
+			background-color: #f1f1f1;
+			padding: 20px;
+            text-align: center;
+		}
+		.button-menu{
+			font-size: 10px;
+      		width: 220px;
+      		height: 40px;
+    	}
+		#sidebar ul {
+			list-style: none;
+			margin-top: 40px;
+			margin: 80;
+			padding: 0;
+		}
+
+		#sidebar li {
+			margin-bottom: 15px;
+		}
+		#sidebar a {
+			display: block;
+			padding: 10px;
+			background-color: #fff;
+			text-decoration: none;
+			color: #000;
+		}
+		#sidebar a.active {
+			background-color: #ccc;
+			font-weight: bold;
+		}
+
+		/* Стили для контента */
+		#content {
+			margin-left: 270px;
+			margin-top: 45px;
+		}
+        li a {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            text-decoration: none; /* убираем подчеркивание */
+            color: inherit; /* наследуем цвет от родительского элемента */
+        }
+			/* стили для кнопки выхода */
+			#logout-btn {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			background-color: #fff;
+			border: none;
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+		}
+		#modal-dialog {
+  			position: fixed;
+  			top: 50%;
+  			left: 50%;
+  			transform: translate(-50%, -50%);
+  			z-index: 9999;
+  			background-color: #fff;
+  			border-radius: 5px;
+  			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  			padding: 20px;
+		}
+		#modal-dialog button {
+			width: 180px;
+  			height: 40px;
+  			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<div id="sidebar">
+		<ul>
+			<button onclick="Page1()" class="button-menu">статистика</button>
+			<button onclick="Page2()" class="button-menu">добавить модуль</button>
+			<button onclick="Page3()" class="button-menu">добавить карточки</button>
+			<button onclick="Page4()" class="button-menu">редактировать модуль</button>
+		</ul>
+	</div>
+	<button onclick="Exit()" id="logout-btn">Выход</button>
+	<div id="content">
+        <table id="myTable">
+			<thead>
+			  <tr>
+				<th>Название модуля</th>
+				<th>Edit</th>
+				<th>Delete</th>
+			  </tr>
+			</thead>
+			<tbody>
+			</tbody>
+		  </table>
+		  
+	</div>
+
+	<script>
+		function Exit() {
+			fetch("http://localhost:5000/Exit")
+			.then(response => response.text())
+			.then(html => {document.documentElement.innerHTML = html; window.location.href = '/';})
+		}
+		function Page1() {
+		fetch("http://localhost:5000/statistic")
+			.then(response => response.text())
+			.then(html => document.documentElement.innerHTML = html)
+			.then(history.pushState(null, null, '/statistic'))
+			.catch(error => console.error(error));
+		}
+		function Page2() {
+		fetch("http://localhost:5000/modules")
+			.then(response => response.text())
+			.then(html => document.documentElement.innerHTML = html)
+			.then(history.pushState(null, null, '/modules'))
+			.catch(error => console.error(error));
+		}
+		function Page3() {
+		fetch("http://localhost:5000/cards")
+			.then(response => response.text())
+			.then(html => document.documentElement.innerHTML = html)
+			.then(history.pushState(null, null, '/cards'))
+			.catch(error => console.error(error));
+		}
+		function Page4() {
+		fetch("http://localhost:5000/EditModules")
+			.then(response => response.text())
+			.then(html => {document.documentElement.innerHTML = html; loadData();})
+			.then(history.pushState(null, null, '/EditModules'))
+			.catch(error => console.error(error));
+		}
+	
+	  async function loadData() {
+      try {
+        const response = await fetch("/allModules");
+        const data = await response.json();
+		const tbody = $("#myTable tbody"); // получаем tbody таблицы
+    	tbody.empty(); // удаляем текущую таблицу
+		data.forEach(function(item) {
+  				createRow(item);
+		});
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+      loadData();
+    });
+
+function createRow(data) {
+  // Создаем новый элемент tr
+  var newRow = $("<tr>");
+  
+  // Создаем новый элемент td для названия
+  var nameCell = $("<td>").text(data.Title);
+  
+  // Создаем новый элемент td для кнопок
+  var editCell = $("<td>");
+  var deleteCell = $("<td>");
+  
+  // Создаем кнопку "delete"
+  var deleteButton = $("<button>")
+	.css("background-color", "#DC143C")
+	.css("color", "black")
+    .text("Удалить")
+    .click(function() {
+     // TODO: Добавить код для удаления строки
+	 fetch('/allModules/' + data.Title, { // конкатенация строк с помощью '+'
+  		method: 'DELETE'
+	})
+    .then(response => {
+    if (response.ok) {
+      console.log('Модуль успешно удален');
+	  loadData()
+    } else {
+      console.error('Ошибка при удалении модуля');
+    }
+    })
+    .catch(error => {
+      console.error('Ошибка:', error);
+    });
+    });
+  // Создаем кнопку "edit"
+  var editButton = $("<button>")
+	.css("background-color", "#FF8C00")
+	.css("color", "black")
+    .text("Редактировать")
+    .click(function() {
+      // TODO: Добавить код для редактирования строки
+	  var modal = $("<div>")
+  .attr("id", "modal-dialog")
+  .attr("title", "Редактирование модуля");
+
+// Добавляем элементы в модальное окно
+var input = $("<input>").attr("type", "text").val(data.Title);
+modal.append("<p>Название модуля: </p>").append(input);
+
+var buttonContainer = $("<div>").addClass("button-container");
+modal.append(buttonContainer);
+var moduleTitle = data.Title;
+var confirmButton = $("<button>").text("Подтвердить").click(function() {
+  // TODO: Добавить код для подтверждения редактирования
+  var newModuleTitle = input.val();
+  console.log(newModuleTitle);
+  
+  console.log(moduleTitle);
+  if(moduleTitle)
+  {
+  fetch(`/modules/${moduleTitle}/${newModuleTitle}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      newModuleTitle: newModuleTitle
+    })
+  })
+  .then(function(response) {
+    // Обрабатываем ответ
+    if (response.ok) {
+      // Обновляем значение названия модуля в таблице
+      $(this).closest("tr").find(".module-title").text(newModuleTitle);
+
+      // Закрываем модальное окно
+      $("#modal-dialog").dialog("close");
+	  location.reload();
+    } else {
+      // Обрабатываем ошибку
+      console.error("Ошибка " + response.status + ": " + response.statusText);
+    }
+  })
+  .catch(function(error) {
+    // Обрабатываем ошибку
+    console.error(error);
+  });
+}
+else{
+	console.error("Значение свойства Title не определено или равно null");
+}
+});
+buttonContainer.append(confirmButton);
+
+var closeButton = $("<button>").text("Закрыть").click(function() {
+  $("#modal-dialog").dialog("close");
+});
+buttonContainer.append(closeButton);
+
+
+
+
+// Добавляем модальное окно на страницу
+$("body").append(modal);
+
+// Инициализируем модальное окно с помощью jQuery UI
+$("#modal-dialog").dialog({
+  modal: true,
+  width: 400,
+  close: function() {
+          // Удаляем модальное окно после закрытия
+          $("#modal-dialog").remove();
+        }
+});
+
+
+    });
+  
+  
+  editCell.append(editButton);
+  deleteCell.append(deleteButton);
+  
+  // Добавляем ячейки в строку
+  newRow.append(nameCell).append(editCell).append(deleteCell);
+  
+  // Добавляем строку в таблицу
+  $("#myTable tbody").append(newRow);
+}
+
+
+	</script>	
+</body>
+</html>

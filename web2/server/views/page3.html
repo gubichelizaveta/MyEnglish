@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+	<link href="https://fonts.googleapis.com/css2?family=DynaPuff&display=swap" rel="stylesheet">
+	<title>Мой сайт</title>
+	<style>
+		/* Стили для меню */
+		#sidebar {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 220px;
+			height: 100%;
+			background-color: #f1f1f1;
+			padding: 20px;
+            text-align: center;
+		}
+
+		#sidebar ul {
+			list-style: none;
+			margin-top: 40px;
+			padding: 0;
+			top: 70px;
+		}
+
+		#sidebar li {
+			margin-bottom: 15px;
+		}
+
+		#sidebar a {
+			display: block;
+			padding: 10px;
+			background-color: #fff;
+			text-decoration: none;
+			color: #000;
+		}
+
+		#sidebar a#active {
+			background-color: #ccc;
+			font-weight: bold;
+		}
+
+		/* Стили для контента */
+		#content {
+			margin-left: 270px;
+			margin-top: 45px;
+			
+		}
+        li a {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            text-decoration: none; /* убираем подчеркивание */
+            color: inherit; /* наследуем цвет от родительского элемента */
+        }
+		.button-menu{
+			font-size: 10px;
+      		width: 220px;
+      		height: 40px;
+    	}
+	/* стили для кнопки выхода */
+	#logout-btn {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			background-color: #fff;
+			border: none;
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+		}
+		form {
+    		position: absolute;
+    		top: 50%;
+    		left: 55%;
+    		transform: translate(-50%, -50%);
+    		height: 500px;
+    		width: 500px;
+    		border: 2px solid #ccc;
+    		padding: 20px;
+    		border-radius: 10px;
+    		box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    		display: flex;
+    		flex-direction: column; 
+    		justify-content: center; 
+    		
+    	}
+		input[type="text"] {
+     		width: 280px;
+      		height: 40px;
+      		color: #000;
+    	}
+		#btn-add{
+			background-color: #00FF7F;
+			font-size: 14px;
+			color: #000;
+			height: 40px;
+			width: 180px;
+			margin-left: 32%;
+		}
+		label{
+			font-family:DynaPuff;
+			font-size: 16px;
+			padding-top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div id="sidebar">
+		<ul>
+			<button onclick="Page1()" id="statistic" class="button-menu">статистика</button>
+			<button onclick="Page2()" id="modules" class="button-menu">добавить модуль</button>
+			<button onclick="Page3()" id="cards" class="button-menu">добавить карточки</button>
+			<button onclick="Page4()" id="EditModules" class="button-menu">редактировать модуль</button>
+		</ul>
+	</div>
+	<button onclick="Exit()" id="logout-btn">Выход</button>
+	<div id="content">
+		<form action="/cards/add" method="POST">
+			<div>
+			  <label id="lblWord">Word:</label>
+			  <input type="text" id="cardsWord" name="Word" required>
+			</div>
+			<div>
+				<label id="lblPicture">Picture Path:</label>
+				<input type="text" id="cardsPicture" name="Picture" required>
+			  </div>
+			  <div>
+				<label id="lblTranslation">Translation:</label>
+				<input type="text" id="cardsTranslation" name="Translation" required>
+			  </div>
+			  <div>
+				<label id="lblTranscription">Transcription:</label>
+				<input type="text" id="cardsTranscription" name="Transcription" required>
+			  </div>
+			  <div>
+				<label id="lblModuleTitle">ModuleTitle:</label>
+				<input type="text" id="cardsModuleTitle" name="ModuleTitle" required>
+			  </div>
+			<button id="btn-add" type="submit">Add</button>
+		  </form>
+		</div>
+		<script>
+			function Exit() {
+			fetch("http://localhost:5000/Exit")
+			.then(response => response.text())
+			.then(html => {document.documentElement.innerHTML = html; window.location.href = '/';})
+		    }
+			function Page1() {
+			fetch("http://localhost:5000/statistic")
+				.then(response => response.text())
+				.then(html => document.documentElement.innerHTML = html)
+				.then(history.pushState(null, null, '/statistic'))
+				.catch(error => console.error(error));
+			}
+			function Page2() {
+			fetch("http://localhost:5000/modules")
+				.then(response => response.text())
+				.then(html => document.documentElement.innerHTML = html)
+				.then(history.pushState(null, null, '/modules'))
+				.catch(error => console.error(error));
+			}
+			function Page3() {
+			fetch("http://localhost:5000/cards")
+				.then(response => response.text())
+				.then(html => document.documentElement.innerHTML = html)
+				.then(history.pushState(null, null, '/cards'))
+				.catch(error => console.error(error));
+			}
+			function Page4() {
+			fetch("http://localhost:5000/EditModules")
+				.then(response => response.text())
+				.then(html => {document.documentElement.innerHTML = html; location.reload();})
+				.then(history.pushState(null, null, '/EditModules'))
+				.catch(error => console.error(error));
+			}
+		</script>	
+</body>
+</html>
